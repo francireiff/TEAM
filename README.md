@@ -1,7 +1,6 @@
 # TEAM Epidemic Simulator
 
-A Python-based epidemic simulator that integrates **biological mechanisms** and **individual behavior** to model the spread of infectious diseases.  
-This work is part of the Master’s Thesis:
+A Python-based epidemic simulator that integrates **biological mechanisms** and **individual behavior** to model the spread of infectious diseases. 
 
 
 ## 🧠 Model Summary
