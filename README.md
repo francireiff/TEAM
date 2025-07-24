@@ -32,7 +32,7 @@ To install and run the simulator:
 1. **Clone the repository**
 
 ```bash
-git clone https://github.com/yourusername/sejirs-simulator.git
+git clone https://github.com/francireiff/TEAM
 cd sejirs-simulator
 ```
 
