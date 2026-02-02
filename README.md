@@ -33,14 +33,14 @@ To install and run the simulator:
 
 ```bash
 git clone https://github.com/francireiff/TEAM
-cd sejirs-simulator
+cd TEAM
 ```
 
 2. **(Optional) Create and activate a virtual environment**
 
 ```bash
 python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+source venv/bin/activate  # On Windows: .\venv\Scripts\activate
 ```
 
 3. **Install required Python packages**
