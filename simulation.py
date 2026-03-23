@@ -337,7 +337,7 @@ class Simulation:
 
                 # Check if today is a quarantine day
                 if (self.QUARANTINE_ENABLED and self.QUARANTINE_START_DAY <= 0 <= self.QUARANTINE_DURATION):
-                    print("è un giorno di quarantena")
+                    print("Lockdown day")
                 # Update infection progression for all individuals (except day 1)
                 if day != 1:
                     for p in self.provinces:
@@ -348,8 +348,8 @@ class Simulation:
                             p.trigger_infection_progress()  # Simple state progression
                 else:
                     # First day initialization and reporting
-                    print("con un prudence paramenter di ", InfectionRules.PRUDENCE_PARAMETER,
-                          " ho un fattore di * ", (1 - InfectionRules.PRUDENCE_PARAMETER)**2)
+                    print("prudence parameter of", InfectionRules.PRUDENCE_PARAMETER,
+                          " i have a factor of * ", (1 - InfectionRules.PRUDENCE_PARAMETER)**2)
                     self.currently_infected = self.get_infected_individuals()
                     self.yesterday_infected = len(self.currently_infected)
 
@@ -364,12 +364,12 @@ class Simulation:
                     if (self.QUARANTINE_ENABLED and self.QUARANTINE_START_DAY <= 0 <= self.QUARANTINE_DURATION):
                      # First time entering quarantine - move everyone home
                         if self.QUARANTINE_START_DAY == 0 and hour == 1:
-                            print("numero di persone nelle case prima della quarantena: ", len(self.get_house_individuals()))
+                            print("people in houses before lockdown: ", len(self.get_house_individuals()))
                             self.get_back_home_elderly(elderly_outside)
                             self.get_back_home_workers(self.leave_workplace())
                             self.get_back_home_students(self.leave_school(1))
-                            print("primo giorno di quarantena, tutti dovrebbero essere andati a casa")
-                            print("numero di persone nelle case: ", len(self.get_house_individuals()))
+                            print("first day of lockdown, everyone should be home")
+                            print("number of people in houses: ", len(self.get_house_individuals()))
                     # Normal activity patterns - weekday (Mon-Fri)
                     elif 1 <= day % 7 <= 5:         #weekday
                         # Daily routine management by hour
@@ -377,18 +377,18 @@ class Simulation:
                             all_home1 = self.leave_leisure_all(self.CERTAINTY_PROBABILITY, self.CERTAINTY_PROBABILITY, 0)
                             self.get_back_home_all(all_home1)
                         if hour == 6:
-                            self.workers_to_destination_prov()  # Adulti verso le aree comuni
+                            self.workers_to_destination_prov()  # Adults to common areas
                         if hour == 7:
                             self.students_to_destination_prov()
-                            self.get_to_workplace()  # Lavoratori verso i luoghi di lavoro
+                            self.get_to_workplace()  # workers to workplaces
                         if hour == 8:
-                            self.workplace_infections()  # Infezioni nei luoghi di lavoro
-                            self.get_to_school()  # Studenti verso le scuole
+                            self.workplace_infections()  # infections in workplaces
+                            self.get_to_school()  # Students to schools
                             elderly_outside.extend(self.elderly_to_destination_prov())
                         if 9 <= hour < 17:
                             self.trigger_vaccination_progress(self.VACCINE_COVERAGE)
-                            self.workplace_infections()  # Infezioni nei luoghi di lavoro
-                            self.school_infections()  # Infezioni nelle scuole
+                            self.workplace_infections()  # infections in workplaces
+                            self.school_infections()  # Infections in schools
                             elderly_outside.extend(self.elderly_to_destination_prov())
                             self.get_to_leisure_elderly(0.04)
                             self.get_back_home_elderly(elderly_outside)
@@ -488,9 +488,31 @@ class Simulation:
                         handle_symptoms(self.currently_infected) #function for symptoms management in individuals
 
                 # End of day processing
+                # --- DAILY ICU MONITORING ---
+                if InfectionRules.ICU_PRESENCE:
+                    # Calculate aggregate capacity across all provinces
+                    total_icu_cap = sum(icu.capacity for p in self.provinces for icu in p.ICUs)
+                    total_icu_occ = sum(len(icu.individuals_inside) for p in self.provinces for icu in p.ICUs)
+
+                    if total_icu_cap > 0:
+                        occupancy_rate = total_icu_occ / total_icu_cap
+                        if occupancy_rate >= 0.9:
+                            alert_msg = f"!!! ALERT - Day {day}: ICU capacity at {occupancy_rate*100:.1f}%. Action required!"
+                            print(alert_msg) # Terminal output
+
+                            # Trigger GUI notification
+                            if self.on_day_completed:
+                                # We pass "ALERT" as the first argument to bypass standard formatting
+                                self.on_day_completed("ALERT", alert_msg, "", "", "")
+
+
+
                 self.track_infections()
                 if self.new_daily_cases[day - 1] == 0:
                     print("No new infections.")
+
+                # Existing end-of-day processing follows:
+                self.track_infections()
 
                 # Calculate and report timing information
                 end_time = time.time()
@@ -503,12 +525,12 @@ class Simulation:
                 print("Deaths:", len(self.deaths))
                 print("Seconds:", elapsed_time)
 
-                # Calculate SEITRS model class populations
+                # Calculate SEJIRS model class populations
                 class_S = 0  # Susceptible
                 class_E = 0  # Exposed
                 class_I = 0  # Infected
-                class_T3 = 0  # Hospitalized
-                class_T4 = 0  # ICU
+                class_J3 = 0  # Hospitalized
+                class_J4 = 0  # ICU
                 class_R = 0  # Recovered
                 individuals = self.get_all_individuals()
                 for individual in individuals:
@@ -517,18 +539,18 @@ class Simulation:
                     elif individual.status == "Incubation":
                         class_E += 1
                     elif individual.status == "Infected" and individual.symptoms == "E3":
-                        class_T3 += 1
+                        class_J3 += 1
                     elif individual.status == "Infected" and individual.symptoms == "E4":
-                        class_T4 += 1
+                        class_J4 += 1
                     elif individual.status == "Infected":
                         class_I += 1
                     elif individual.status == "Recovered":
                         class_R += 1
-                print("SEITRS class: ", class_S, class_E, class_I, class_T3, class_T4, class_R)
+                print("SEJIRS class: ", class_S, class_E, class_I, class_J3, class_J4, class_R)
                 # Write daily data to CSV
                 csv_writer.writerow(
                     [day, self.new_daily_cases[day - 1],
-                     self.prevalence[day - 1], len(self.deaths), elapsed_time, class_S, class_E, class_I, class_T3, class_T4, class_R]
+                     self.prevalence[day - 1], len(self.deaths), elapsed_time, class_S, class_E, class_I, class_J3, class_J4, class_R]
                 )
 
                 # At the end of each day, notify GUI if callback exists
@@ -547,7 +569,7 @@ class Simulation:
         # Generate visualization graphs from simulation data
         data = pd.read_csv(csv_filename)
         output_dir = os.path.join(os.path.dirname(csv_filename), "graphs")
-        os.makedirs(output_dir, exist_ok=True)  # Crea la cartella se non esiste
+        os.makedirs(output_dir, exist_ok=True)  # Creates folder if does not exist
 
         # Calculate percentages for better comparability
         data["Prevalence (%)"] = (data["Prevalence"] / self.TOTAL_POPULATION) * 100
@@ -555,13 +577,13 @@ class Simulation:
         data["Deaths (%)"] = (data["Deaths"] / self.TOTAL_POPULATION) * 100
 
 
-        # Creazione dei grafici a linea
+        # Line plots
         def create_line_chart(x, y, title, x_label, y_label, base_filename, color):
-            simulation_name = os.path.splitext(os.path.basename(csv_filename))[0]  # Nome file senza estensione
-            filename = f"{base_filename}_{simulation_name}.png"  # Nome del file grafico
-            output_file = os.path.join(output_dir, filename)  # Percorso completo del file
+            simulation_name = os.path.splitext(os.path.basename(csv_filename))[0]  # File name without extension
+            filename = f"{base_filename}_{simulation_name}.png"  # Graph name
+            output_file = os.path.join(output_dir, filename)  # Full file path
             plt.figure(figsize=(10, 6))
-            plt.plot(x, y, color=color, linewidth=2)  # Specifica il colore
+            plt.plot(x, y, color=color, linewidth=2)  # Specify the color
             plt.title(title, fontsize=16)
             plt.xlabel(x_label, fontsize=14)
             plt.ylabel(y_label, fontsize=14)
@@ -1100,6 +1122,7 @@ class Simulation:
                     available_ICU = next((ICU for ICU in province.ICUs if len(ICU.individuals_inside) < ICU.capacity), None)
                     if available_ICU:
                         place.check_ICU(individual, available_ICU)
+
 
 
     def discharge_from_hospital(self):

@@ -614,9 +614,22 @@ class SimulationGUI:
 
             # Update output with simulation progress
             def update_simulation_output(day, new_cases, prevalence, deaths, seconds):
-                output_line = f"{day:<6}{new_cases:<12}{prevalence:<12}{deaths:<8}{seconds:<8.2f}\n"
+                if day == "ALERT":
+                    # Directly insert the alert text without numerical formatting
+                    output_line = f"\n{new_cases}\n\n"
+                else:
+                    # Standard daily stats row
+                    # We use a try/except block to handle the 'seconds' formatting safely
+                    try:
+                        # Ensure seconds is treated as a float for the :.2f formatter
+                        val_seconds = float(seconds) if seconds != "" else 0.0
+                        output_line = f"{day:<6}{new_cases:<12}{prevalence:<12}{deaths:<8}{val_seconds:<8.2f}\n"
+                    except (ValueError, TypeError):
+                        # Fallback if formatting fails
+                        output_line = f"{day:<6}{new_cases:<12}{prevalence:<12}{deaths:<8}{seconds:<8}\n"
+
                 self.output_text.insert(tk.END, output_line)
-                self.output_text.see(tk.END)
+                self.output_text.see(tk.END) # Scroll to the bottom
                 self.output_text.update()
 
             # Connect to simulation results
