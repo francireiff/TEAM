@@ -1,13 +1,13 @@
-# TEAM Epidemic Simulator
+# TEAM - Transmission of Epidemic Among Membranes
 
 A Python-based epidemic simulator that integrates **biological mechanisms** and **individual behavior** to model the spread of infectious diseases. 
 
 
-## 🧠 Model Summary
+## Model Summary
 
 The simulator is based on a **P system with active membranes**, merging the biological realism of **LOIMOS** with the behavioral modeling of **MVT**.
 
-It adopts an extended **SEJIRS** epidemiological model:
+It adopts an epidemiological model called **SEJIRS**:
 
 - **S**: Susceptible
 - **E**: Exposed (infected, not yet infectious)
@@ -19,13 +19,13 @@ It adopts an extended **SEJIRS** epidemiological model:
 ### Key Features:
 - Probabilistic infection and symptom development
 - Behavioral parameters: prudence, vaccination, inter-province mobility
-- Hospitalization, ICU management, and quarantine modeling
+- Hospitalization, ICU management, and lockdown modeling
 - Graphical interface to configure and run simulations
 - Output as both CSV data and visual plots
 
 ---
 
-## 🚀 Installation
+## Installation
 
 To install and run the simulator:
 
@@ -53,7 +53,7 @@ pip install -r requirements.txt
 
 ---
 
-## ▶️ Running the Simulation
+## Running the Simulation
 
 To launch the simulator, run:
 
@@ -67,9 +67,9 @@ python interface.py
 
 ---
 
-## 📁 Simulation Output
+## Simulation Output
 
-After the **first simulation**, a new folder called `simulation/` will be created:
+After the first simulation, a new folder called `simulation/` will be created:
 
 ```
 simulation/
@@ -79,16 +79,19 @@ simulation/
 
 ### What You’ll Find:
 - `results.csv`: contains daily stats (infected, exposed, recovered, deaths, etc.)
-- `graphs/`: includes PNG plots for:
-    - Infection and recovery trends
-    - Symptom progression
-    - Behavioral impact (e.g., prudence, vaccination)
-    - Province movement effects
+- `graphs/`: includes PNG plots illustrating:
+    - The temporal evolution of active infections
+    - The cumulative mortality over time
+    - The daily variation in infections
+
+### Plot Generation
+
+The file [plot_generator.py](plot_generator.py) is organized into sections that generate combined plots. These allow direct comparison between multiple simulation results within the same figure.
 
 ---
-## 📚 Related Work
+## Related Work
 
-- **LOIMOS**: *P systems in the time of COVID-19*
-- **MVT**: *A dynamic behavior epidemiological model by membrane systems*
+- [**LOIMOS**](https://link.springer.com/article/10.1007/s41965-021-00083-1): *P systems in the time of COVID-19*
+- [**MVT**](https://link.springer.com/article/10.1007/s41965-025-00188-x): *A dynamic behavior epidemiological model by membrane systems*
 
 This simulator combines both to create a flexible, generalized model for research and experimentation in epidemic simulations.
