@@ -7,9 +7,9 @@ import numpy as np
 
 # 1. Insert the names of your 3 CSV files
 csv_files = [
-    "results/csv/PP 0,9 SPP 0.8 - 400 days/simulation_25000_12_400___20260323_131809.csv",
-    "results/csv/PP 0,9 SPP 0.8 - 400 days/simulation_25000_12_400___20260323_160341.csv",
-    "results/csv/PP 0,9 SPP 0.8 - 400 days/simulation_25000_12_400___20260323_184948.csv"
+    "csv/PP 0,9 SPP 0.8 - 400 days/simulation_25000_12_400___20260323_131809.csv",
+    "csv/PP 0,9 SPP 0.8 - 400 days/simulation_25000_12_400___20260323_160341.csv",
+    "csv/PP 0,9 SPP 0.8 - 400 days/simulation_25000_12_400___20260323_184948.csv"
 ]
 
 # Total population for percentage calculation (adjust if your simulation changes)
@@ -148,11 +148,11 @@ script_dir = os.path.dirname(os.path.abspath(__file__))
 # 1. EXECUTE FOR PP (5 subfolders -> 2x3 grid)
 # ==========================================
 sub_dirs_pp = [
-    "results/csv/PP 1 SPP 0.8",
-    "results/csv/PP 0,9 SPP 0.8",
-    "results/csv/PP 0,75 SPP 0.8",
-    "results/csv/PP 0,5 SPP 0.8",
-    "results/csv/PP 0,25 SPP 0.8"
+    "csv/PP 1 SPP 0.8",
+    "csv/PP 0,9 SPP 0.8",
+    "csv/PP 0,75 SPP 0.8",
+    "csv/PP 0,5 SPP 0.8",
+    "csv/PP 0,25 SPP 0.8"
 ]
 labels_pp = ["PP = 1", "PP = 0.9", "PP = 0.75", "PP = 0.5", "PP = 0.25"]
 
@@ -165,10 +165,10 @@ plot_stochastic_grid(script_dir, sub_dirs_pp, labels_pp, "Deaths", 2, 3, "Deaths
 # 2. EXECUTE FOR SPP (4 subfolders -> 2x2 grid)
 # ==========================================
 sub_dirs_spp = [
-    "results/csv/PP 0,9 SPP 1",
-    "results/csv/PP 0,9 SPP 0.8",
-    "results/csv/PP 0,9 SPP 0.5",
-    "results/csv/PP 0,9 SPP 0"
+    "csv/PP 0,9 SPP 1",
+    "csv/PP 0,9 SPP 0.8",
+    "csv/PP 0,9 SPP 0.5",
+    "csv/PP 0,9 SPP 0"
 ]
 labels_spp = ["SPP = 1", "SPP = 0.8", "SPP = 0.5", "SPP = 0"]
 
@@ -253,11 +253,11 @@ script_dir = os.path.dirname(os.path.abspath(__file__))
 # 1. EXECUTE FOR PP (Overlapped in a single chart)
 # ==========================================
 sub_dirs_pp = [
-    "results/csv/PP 1 SPP 0.8",
-    "results/csv/PP 0,9 SPP 0.8",
-    "results/csv/PP 0,75 SPP 0.8",
-    "results/csv/PP 0,5 SPP 0.8",
-    "results/csv/PP 0,25 SPP 0.8"
+    "csv/PP 1 SPP 0.8",
+    "csv/PP 0,9 SPP 0.8",
+    "csv/PP 0,75 SPP 0.8",
+    "csv/PP 0,5 SPP 0.8",
+    "csv/PP 0,25 SPP 0.8"
 ]
 labels_pp = ["PP = 1", "PP = 0.9", "PP = 0.75", "PP = 0.5", "PP = 0.25"]
 
@@ -270,10 +270,10 @@ plot_stochastic_single_chart(script_dir, sub_dirs_pp, labels_pp, "Deaths", "Deat
 # 2. EXECUTE FOR SPP (Overlapped in a single chart)
 # ==========================================
 sub_dirs_spp = [
-    "results/csv/PP 0,9 SPP 1",
-    "results/csv/PP 0,9 SPP 0.8",
-    "results/csv/PP 0,9 SPP 0.5",
-    "results/csv/PP 0,9 SPP 0"
+    "csv/PP 0,9 SPP 1",
+    "csv/PP 0,9 SPP 0.8",
+    "csv/PP 0,9 SPP 0.5",
+    "csv/PP 0,9 SPP 0"
 ]
 labels_spp = ["SPP = 1", "SPP = 0.8", "SPP = 0.5", "SPP = 0"]
 
@@ -385,9 +385,9 @@ script_dir = os.path.dirname(os.path.abspath(__file__))
 # ==========================================
 # Check if these exact folder names match your directories
 sub_dirs_lockdowns = [
-    "results/csv/PP 0,9 SPP 0.8 - 400 days", 
-    "results/csv/60 day lockdown - 400 days", 
-    "results/csv/3 20 day lockdown - 800 days"
+    "csv/no lockdown - 800 days", 
+    "csv/60 day lockdown - 800 days", 
+    "csv/3 20 day lockdown - 800 days"
 ]
 labels_lockdowns = ["No lockdown", "60 day lockdown", "3 20 day lockdown"]
 
