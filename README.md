@@ -11,8 +11,8 @@ It adopts an epidemiological model called **SEJIRS**:
 
 - **S**: Susceptible
 - **E**: Exposed (infected, not yet infectious)
-- **J3**: Moderately symptomatic (isolated, hospitalized if needed)
-- **J4**: Severely symptomatic (ICU, high risk of death)
+- **J1**: Moderately symptomatic (isolated, hospitalized if needed)
+- **J2**: Severely symptomatic (ICU, high risk of death)
 - **I**: Infected and infectious
 - **R**: Recovered (temporary immunity)
 
@@ -86,7 +86,7 @@ simulation/
 
 ### Plot Generation
 
-The file [plot_generator.py](plot_generator.py) is organized into sections that generate combined plots. These allow direct comparison between multiple simulation results within the same figure.
+The file [plot_generator.py](plot_generator.py) is organized into sections that generate combined plots. These allow direct comparison between multiple simulation results within the same figure. The results of this file can be analysed in the current “graphs” folder, which contains a report on some simulations that have been run and can be found in the “csv” folder.
 
 ---
 ## Related Work
