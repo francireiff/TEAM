@@ -3,13 +3,17 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 
+
 #---------PLOT STOCHASTICITY OF SEJIRS CLASSES (SUBPLOTS)-------
 
 # 1. Insert the names of your 3 CSV files
 csv_files = [
     "csv/PP 0,9 SPP 0.8 - 400 days/simulation_25000_12_400___20260323_131809.csv",
     "csv/PP 0,9 SPP 0.8 - 400 days/simulation_25000_12_400___20260323_160341.csv",
-    "csv/PP 0,9 SPP 0.8 - 400 days/simulation_25000_12_400___20260323_184948.csv"
+    "csv/PP 0,9 SPP 0.8 - 400 days/simulation_25000_12_400___20260323_184948.csv",
+    "csv/PP 0,9 SPP 0.8 - 400 days/simulation_25000_12_400___20260417_083148.csv",
+    "csv/PP 0,9 SPP 0.8 - 400 days/simulation_25000_12_400___20260417_110948.csv",
+    "csv/PP 0,9 SPP 0.8 - 400 days/simulation_25000_12_400___20260417_134420.csv"
 ]
 
 # Total population for percentage calculation (adjust if your simulation changes)
@@ -21,7 +25,7 @@ days = dfs[0]["Day"] # Use the days from the first simulation
 
 # Define the columns to analyze and their colors
 columns = ["classS", "classE", "classI", "classT3", "classT4", "classR"]
-labels = ["S", "E", "I", "J3", "J4", "R"]
+labels = ["S", "E", "I", "J1", "J2", "R"]
 colors = ["blue", "orange", "green", "red", "purple", "brown"]
 
 # 2. Create a SINGLE image containing a 2x3 grid (2 rows, 3 columns)
@@ -60,122 +64,13 @@ plt.suptitle("Cardinality of the SEJIRS model classes over days (%)", fontsize=2
 plt.tight_layout() # Optimize spacing to avoid overlapping text
 
 # 5. Save the generated image
-output_dir = "stochasticity_plots"
+output_dir = "graphs"
 os.makedirs(output_dir, exist_ok=True)
 output_path = os.path.join(output_dir, "sejirs_cardinality.png")
 plt.savefig(output_path, dpi=300)
 
 print(f"Chart successfully saved in: {output_path}")
 plt.show()
-
-
-#---------PLOT STOCHASTICITY OF PREVALENCE AND DEATHS (PP & SPP)-------
-
-
-def plot_stochastic_grid(base_dir, sub_dirs, labels, metric, grid_rows, grid_cols, title_prefix, output_filename, total_population=25000):
-    # Create the grid
-    fig, axes = plt.subplots(grid_rows, grid_cols, figsize=(16, 10))
-    axes = axes.flatten()
-
-    for idx, (sub_dir, label) in enumerate(zip(sub_dirs, labels)):
-        ax = axes[idx]
-        folder_path = os.path.join(base_dir, sub_dir)
-
-        # Automatically find all CSV files
-        try:
-            csv_files = [os.path.join(folder_path, f) for f in os.listdir(folder_path) if f.endswith('.csv')]
-        except FileNotFoundError:
-            print(f"Warning: Folder '{folder_path}' not found. Skipping...")
-            continue
-
-        if len(csv_files) == 0:
-            print(f"Warning: No CSV files found in {folder_path}. Skipping...")
-            continue
-
-        # Read data from the files
-        dfs = [pd.read_csv(f) for f in csv_files]
-
-        # --- FIX FOR INHOMOGENEOUS SHAPE ---
-        # Find the minimum number of rows among the simulations to avoid shape errors
-        min_len = min(len(df) for df in dfs)
-        days = dfs[0]["Day"].values[:min_len]
-
-        # Extract the requested metric, slice to min_len, and convert to percentage
-        class_data = np.array([(df[metric].values[:min_len] / total_population) * 100 for df in dfs])
-
-        # Calculate Mean
-        mean_data = class_data.mean(axis=0)
-
-        # Draw the 3 individual simulations (Gray, semi-transparent, medium thickness)
-        for i, sim_data in enumerate(class_data):
-            sim_label = "Individual Runs" if i == 0 else ""
-            ax.plot(days, sim_data, color="gray", alpha=0.6, linewidth=1.5, label=sim_label)
-
-        # Draw the mean line on top (Red, solid, clear thickness)
-        ax.plot(days, mean_data, color="red", alpha=1.0, linewidth=2.0, label="Mean")
-
-        # Configure the individual subplot
-        ax.set_title(label, fontsize=14)
-        ax.grid(True, linestyle="--", alpha=0.6)
-        ax.legend(fontsize=10, loc="best")
-        ax.set_xlabel("Days", fontsize=12)
-        ax.set_ylabel(f"{metric} (%)", fontsize=12)
-
-    # Hide any extra empty subplots
-    for i in range(len(sub_dirs), len(axes)):
-        fig.delaxes(axes[i])
-
-    # Final configurations
-    plt.suptitle(f"{title_prefix} - {metric} (%)", fontsize=18)
-    plt.tight_layout()
-
-    # Save the generated image right next to the script
-    script_directory = os.path.dirname(os.path.abspath(__file__))
-    output_dir = os.path.join(script_directory, "stochasticity_plots")
-    os.makedirs(output_dir, exist_ok=True)
-    output_path = os.path.join(output_dir, output_filename)
-    plt.savefig(output_path, dpi=300)
-    plt.close()
-
-    print(f"Chart successfully saved in: {output_path}")
-
-# ==========================================
-# Get the exact absolute path of this python script
-# ==========================================
-script_dir = os.path.dirname(os.path.abspath(__file__))
-
-# ==========================================
-# 1. EXECUTE FOR PP (5 subfolders -> 2x3 grid)
-# ==========================================
-sub_dirs_pp = [
-    "csv/PP 1 SPP 0.8",
-    "csv/PP 0,9 SPP 0.8",
-    "csv/PP 0,75 SPP 0.8",
-    "csv/PP 0,5 SPP 0.8",
-    "csv/PP 0,25 SPP 0.8"
-]
-labels_pp = ["PP = 1", "PP = 0.9", "PP = 0.75", "PP = 0.5", "PP = 0.25"]
-
-# Plot Prevalence for PP
-plot_stochastic_grid(script_dir, sub_dirs_pp, labels_pp, "Prevalence", 2, 3, "Prevalence over days at varying PP", "PP_prevalence_single.png")
-# Plot Deaths for PP
-plot_stochastic_grid(script_dir, sub_dirs_pp, labels_pp, "Deaths", 2, 3, "Deaths over days at varying PP", "PP_deaths_single.png")
-
-# ==========================================
-# 2. EXECUTE FOR SPP (4 subfolders -> 2x2 grid)
-# ==========================================
-sub_dirs_spp = [
-    "csv/PP 0,9 SPP 1",
-    "csv/PP 0,9 SPP 0.8",
-    "csv/PP 0,9 SPP 0.5",
-    "csv/PP 0,9 SPP 0"
-]
-labels_spp = ["SPP = 1", "SPP = 0.8", "SPP = 0.5", "SPP = 0"]
-
-# Plot Prevalence for SPP
-plot_stochastic_grid(script_dir, sub_dirs_spp, labels_spp, "Prevalence", 2, 2, "Prevalence over days at varying SPP", "SPP_prevalence_single.png")
-# Plot Deaths for SPP
-plot_stochastic_grid(script_dir, sub_dirs_spp, labels_spp, "Deaths", 2, 2, "Deaths over days at varying SPP", "SPP_deaths_single.png")
 
 
 
@@ -224,19 +119,23 @@ def plot_stochastic_single_chart(base_dir, sub_dirs, labels, metric, title, outp
             plt.plot(days, sim_data, color=color, alpha=0.2, linewidth=1)
 
         # Draw the mean line on top (Thick and fully opaque)
-        plt.plot(days, mean_data, color=color, alpha=1.0, linewidth=2.5, label=f"Mean {label}")
+        plt.plot(days, mean_data, color=color, alpha=1.0, linewidth=2.5, label=f"{label} (Mean)")
 
     # Configure the chart
-    plt.title(title, fontsize=24)
+    plt.title(title, fontsize=27)
     plt.grid(True, linestyle="--", alpha=0.6)
-    plt.legend(fontsize=20, loc="best")
+    plt.legend(fontsize=21, loc="best")
     plt.xlabel("Days", fontsize=22)
-    plt.ylabel(f"{metric} (%)", fontsize=22)
+    ylabel = "Susceptible (%)" if metric == "classS" else f"{metric} (%)"
+    if metric == "classR": ylabel = "Recovered (%)"
+    plt.ylabel(ylabel, fontsize=22)
+    plt.xticks(fontsize=18)
+    plt.yticks(fontsize=18)
     plt.tight_layout()
 
     # Save the generated image right next to the script
     script_directory = os.path.dirname(os.path.abspath(__file__))
-    output_dir = os.path.join(script_directory, "stochasticity_plots")
+    output_dir = os.path.join(script_directory, "graphs")
     os.makedirs(output_dir, exist_ok=True)
     output_path = os.path.join(output_dir, output_filename)
     plt.savefig(output_path, dpi=300)
@@ -253,35 +152,42 @@ script_dir = os.path.dirname(os.path.abspath(__file__))
 # 1. EXECUTE FOR PP (Overlapped in a single chart)
 # ==========================================
 sub_dirs_pp = [
-    "csv/PP 1 SPP 0.8",
-    "csv/PP 0,9 SPP 0.8",
-    "csv/PP 0,75 SPP 0.8",
+    "csv/PP 0,25 SPP 0.8",
     "csv/PP 0,5 SPP 0.8",
-    "csv/PP 0,25 SPP 0.8"
+    "csv/PP 0,75 SPP 0.8",
+    "csv/PP 0,9 SPP 0.8",
+    "csv/PP 1 SPP 0.8"
 ]
-labels_pp = ["PP = 1", "PP = 0.9", "PP = 0.75", "PP = 0.5", "PP = 0.25"]
+labels_pp = ["PP = 0.25", "PP = 0.5", "PP = 0.75", "PP = 0.9", "PP = 1"]
 
 # Plot Prevalence for PP
 plot_stochastic_single_chart(script_dir, sub_dirs_pp, labels_pp, "Prevalence", "Prevalence over days (%) at varying PP", "PP_prevalence_combined.png")
 # Plot Deaths for PP
 plot_stochastic_single_chart(script_dir, sub_dirs_pp, labels_pp, "Deaths", "Deaths over days (%) at varying PP", "PP_deaths_combined.png")
+# Plot R for PP
+plot_stochastic_single_chart(script_dir, sub_dirs_pp, labels_pp, "classR", "Recovered over days (%) at varying PP", "PP_R_combined.png")
+# Plot S for PP
+plot_stochastic_single_chart(script_dir, sub_dirs_pp, labels_pp, "classS", "Susceptible over days (%) at varying PP", "PP_S_combined.png")
 
 # ==========================================
 # 2. EXECUTE FOR SPP (Overlapped in a single chart)
 # ==========================================
 sub_dirs_spp = [
-    "csv/PP 0,9 SPP 1",
-    "csv/PP 0,9 SPP 0.8",
+    "csv/PP 0,9 SPP 0",
     "csv/PP 0,9 SPP 0.5",
-    "csv/PP 0,9 SPP 0"
+    "csv/PP 0,9 SPP 0.8",
+    "csv/PP 0,9 SPP 1"
 ]
-labels_spp = ["SPP = 1", "SPP = 0.8", "SPP = 0.5", "SPP = 0"]
+labels_spp = ["SPP = 0", "SPP = 0.5", "SPP = 0.8", "SPP = 1"]
 
 # Plot Prevalence for SPP
 plot_stochastic_single_chart(script_dir, sub_dirs_spp, labels_spp, "Prevalence", "Prevalence over days (%) at varying SPP", "SPP_prevalence_combined.png")
 # Plot Deaths for SPP
 plot_stochastic_single_chart(script_dir, sub_dirs_spp, labels_spp, "Deaths", "Deaths over days (%) at varying SPP", "SPP_deaths_combined.png")
-
+# Plot R for SPP
+plot_stochastic_single_chart(script_dir, sub_dirs_spp, labels_spp, "classR", "Recovered over days (%) at varying SPP", "SPP_R_combined.png")
+# Plot S for PP
+plot_stochastic_single_chart(script_dir, sub_dirs_spp, labels_spp, "classS", "Susceptible over days (%) at varying SPP", "SPP_S_combined.png")
 
 
 #---------PLOT STOCHASTICITY OF LOCKDOWNS (SINGLE CHART WITH PADDING)-------
@@ -358,16 +264,20 @@ def plot_lockdown_single_chart(base_dir, sub_dirs, labels, metric, title, output
     ax.hlines(y=y_pos_orange, xmin=50, xmax=110, color='orange', linestyle='--', linewidth=2)
 
     # Configure the chart
-    plt.title(title, fontsize=24)
+    plt.title(title, fontsize=27)
     plt.grid(True, linestyle="--", alpha=0.6)
-    plt.legend(fontsize=20, loc="best")
+    plt.legend(fontsize=21, loc="best")
     plt.xlabel("Days", fontsize=22)
-    plt.ylabel(f"{metric} (%)", fontsize=22)
+    ylabel = "Susceptible (%)" if metric == "classS" else f"{metric} (%)"
+    if metric == "classR": ylabel = "Recovered (%)"
+    plt.ylabel(ylabel, fontsize=22)
+    plt.xticks(fontsize=18)
+    plt.yticks(fontsize=18)
     plt.tight_layout()
 
     # Save the generated image
     script_directory = os.path.dirname(os.path.abspath(__file__))
-    output_dir = os.path.join(script_directory, "stochasticity_plots")
+    output_dir = os.path.join(script_directory, "graphs")
     os.makedirs(output_dir, exist_ok=True)
     output_path = os.path.join(output_dir, output_filename)
     plt.savefig(output_path, dpi=300)
@@ -393,7 +303,9 @@ labels_lockdowns = ["No lockdown", "60 day lockdown", "3 20 day lockdown"]
 
 # Plot Prevalence for Lockdowns
 plot_lockdown_single_chart(script_dir, sub_dirs_lockdowns, labels_lockdowns, "Prevalence", "Prevalence over days (%) at varying lockdowns", "Lockdown_prevalence_combined.png")
-
 # Plot Deaths for Lockdowns
 plot_lockdown_single_chart(script_dir, sub_dirs_lockdowns, labels_lockdowns, "Deaths", "Deaths over days (%) at varying lockdowns", "Lockdown_deaths_combined.png")
-
+# Plot Recovered for Lockdowns
+plot_lockdown_single_chart(script_dir, sub_dirs_lockdowns, labels_lockdowns, "classR", "Recovered over days (%) at varying lockdowns", "Lockdown_R_combined.png")
+# Plot Recovered for Lockdowns
+plot_lockdown_single_chart(script_dir, sub_dirs_lockdowns, labels_lockdowns, "classS", "Susceptible over days (%) at varying lockdowns", "Lockdown_S_combined.png")
