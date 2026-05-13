@@ -360,6 +360,11 @@ class Simulation:
 
                 # Main simulation loop - hours within day
                 for hour in range(1, hours_per_day + 1):
+
+                    # Updates cache every hour
+                    for p in self.provinces:
+                        p.update_cache()
+
                     # Handle quarantine activation (first hour of first quarantine day)
                     if (self.QUARANTINE_ENABLED and self.QUARANTINE_START_DAY <= 0 <= self.QUARANTINE_DURATION):
                      # First time entering quarantine - move everyone home
@@ -512,7 +517,7 @@ class Simulation:
                     print("No new infections.")
 
                 # Existing end-of-day processing follows:
-                self.track_infections()
+                #self.track_infections()
 
                 # Calculate and report timing information
                 end_time = time.time()

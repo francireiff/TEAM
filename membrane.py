@@ -98,6 +98,12 @@ class ProvinceMembrane(Membrane):
         self.houses = houses if houses else []
         self.ICUs = ICUs if ICUs else []
 
+
+        # Cache parameters
+        self._cached_infected = 0
+        self._cached_population = 0
+
+
         # Register this province for global access
         ProvinceMembrane.province_registry[label] = self
 
@@ -238,6 +244,16 @@ class ProvinceMembrane(Membrane):
         if membrane_type == "H":
             self.houses.append(mem_to_add)
 
+
+    # Updates cache parameters
+    def update_cache(self):
+        all_places = (self.schools + self.workplaces + self.leisure_centers +
+                  self.common_areas + self.hospitals + self.ICUs + self.houses)
+        self._cached_infected = sum(place.get_total_infected() for place in all_places)
+        self._cached_population = sum(place.get_total_individuals() for place in all_places)
+
+
+
     def total_infected(self):
         """
         Count infected individuals across all places in the province.
@@ -245,9 +261,11 @@ class ProvinceMembrane(Membrane):
         Returns:
             int: Total number of infected individuals
         """
-        return sum(place.get_total_infected() for place in
-                   self.schools + self.workplaces + self.leisure_centers +
-                   self.common_areas + self.hospitals + self.ICUs + self.houses)
+
+        return self._cached_infected  #uses cache value
+
+
+
 
     def total_vaccinated(self):
         """
@@ -278,9 +296,10 @@ class ProvinceMembrane(Membrane):
         Returns:
             int: Total population of the province
         """
-        return sum(place.get_total_individuals() for place in
-                   self.schools + self.workplaces + self.leisure_centers +
-                   self.common_areas + self.hospitals + self.ICUs + self.houses)
+
+        return self._cached_population  #uses cache value
+
+
 
     def vaccinate_population(self, coverage_percent):
         """
